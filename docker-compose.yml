@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  inventoryapi:
+    image: inventoryapi
+    build:
+      context: ./src/Services/InventoryAPI
+      dockerfile: Dockerfile
+    depends_on:
+      - sql.data
+      - rabbitmq
+
+  locationapi:
+    image: locationapi
+    build:
+      context: ./src/Services/LocationAPI
+      dockerfile: Dockerfile
+
+  transportapi:
+    image: transportapi
+    build:
+      context: ./src/Services/TransportAPI
+      dockerfile: Dockerfile
+
+  sql.data:
+    image: microsoft/mssql-server-linux
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - "5672:5762"
