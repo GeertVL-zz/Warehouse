@@ -68,7 +68,7 @@ namespace InventoryAPI
         options.SingleApiVersion(new Swashbuckle.Swagger.Model.Info
         {
           Title = "Warehouse - Inventory API",
-          Version = "V1",
+          Version = "v1",
           Description = "The Inventory Microservice HTTP API",
           TermsOfService = "Terms Of Service"
         });
@@ -113,10 +113,16 @@ namespace InventoryAPI
 
       var integrationEventLogContext = new IntegrationEventLogContext(
         new DbContextOptionsBuilder<IntegrationEventLogContext>()
-        .UseSqlServer(Configuration["ConnectionString"], b => b.MigrationsAssembly("Inventory.API"))
-        .Options
-        );
-      integrationEventLogContext.Database.Migrate();
+        .UseSqlServer(Configuration["ConnectionString"], b => b.MigrationsAssembly("InventoryAPI"))
+        .Options);
+      try
+      {
+        integrationEventLogContext.Database.Migrate();
+      }
+      catch (Exception ex)
+      {
+        throw ex;
+      }
     }
 
     private void WaitForSqlAvailability(InventoryContext context, ILoggerFactory loggerFactory, int? retry = 0)

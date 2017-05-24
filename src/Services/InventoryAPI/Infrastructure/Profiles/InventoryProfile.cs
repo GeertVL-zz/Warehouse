@@ -12,7 +12,8 @@ namespace InventoryAPI.Infrastructure.Profiles
   {
     public InventoryProfile()
     {
-      CreateMap<Inventory, StockViewModel>();
+      CreateMap<Inventory, StockViewModel>()
+        .ForMember(dst => dst.Name, src => src.MapFrom(opt => opt.Product.Name));
     }
   }
 }

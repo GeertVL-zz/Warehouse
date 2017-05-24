@@ -18,14 +18,14 @@ namespace InventoryAPI.Infrastructure
 
       context.Database.Migrate();
 
-      if (!context.Products.Any())
-      {
-        context.Products.AddRange(GetPreconfiguredProducts());
-        await context.SaveChangesAsync();
-      }
       if (!context.Inventories.Any())
       {
         context.Inventories.AddRange(GetPreconfiguredInventories());
+        await context.SaveChangesAsync();
+      }
+      if (!context.Products.Any())
+      {
+        context.Products.AddRange(GetPreconfiguredProducts());
         await context.SaveChangesAsync();
       }
     }

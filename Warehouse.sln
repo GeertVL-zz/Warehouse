@@ -30,6 +30,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Location.Domain", "src\Services\Location.Domain\Location.Domain.csproj", "{8A8AA32B-2A65-4FEB-847B-E0A10BA61A87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Location.Infrastructure", "src\Services\Location.Infrastructure\Location.Infrastructure.csproj", "{21F6C281-E156-446E-B03B-56D6EBD4F0E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +68,14 @@ Global
 		{0F454897-426F-4FE4-A940-84E29DF8DE73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F454897-426F-4FE4-A940-84E29DF8DE73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F454897-426F-4FE4-A940-84E29DF8DE73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A8AA32B-2A65-4FEB-847B-E0A10BA61A87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A8AA32B-2A65-4FEB-847B-E0A10BA61A87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A8AA32B-2A65-4FEB-847B-E0A10BA61A87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A8AA32B-2A65-4FEB-847B-E0A10BA61A87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21F6C281-E156-446E-B03B-56D6EBD4F0E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21F6C281-E156-446E-B03B-56D6EBD4F0E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21F6C281-E156-446E-B03B-56D6EBD4F0E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21F6C281-E156-446E-B03B-56D6EBD4F0E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,5 +90,7 @@ Global
 		{641FAF7B-A67C-48C9-84A3-59C5D5ED9FBF} = {C7CC67C6-BB68-409B-B7FB-5AC936E42A3B}
 		{A535C51A-779F-4DF3-94BB-1E2D6DE65454} = {C7CC67C6-BB68-409B-B7FB-5AC936E42A3B}
 		{0F454897-426F-4FE4-A940-84E29DF8DE73} = {C7CC67C6-BB68-409B-B7FB-5AC936E42A3B}
+		{8A8AA32B-2A65-4FEB-847B-E0A10BA61A87} = {DE6B9994-2EED-426A-AD42-5F5967A095A1}
+		{21F6C281-E156-446E-B03B-56D6EBD4F0E0} = {DE6B9994-2EED-426A-AD42-5F5967A095A1}
 	EndGlobalSection
 EndGlobal

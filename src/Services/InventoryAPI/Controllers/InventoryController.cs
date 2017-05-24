@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using InventoryAPI.Infrastructure;
 using Microsoft.Extensions.Options;
 using InventoryAPI.IntegrationEvents;
+using InventoryAPI.IntegrationEvents.Events;
 using InventoryAPI.Model;
 using InventoryAPI.ViewModel;
 using Microsoft.EntityFrameworkCore;
@@ -29,23 +30,80 @@ namespace InventoryAPI.Controllers
       _mapper = mapper;
 
       context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-
-      var config = new MapperConfiguration(cfg => cfg.CreateMap<Inventory, StockViewModel>());
-      
-
     }
 
     [HttpGet]
     [Route("[action]/withname/{name:minlength(1)}")]
     public async Task<IActionResult> Items(string name)
     {
-      var items = await _inventoryContext.Inventories
+      var items = await _inventoryContext.Inventories.Include("Product")
         .Where(inv => inv.Product.Name.StartsWith(name))
         .ToListAsync();
 
       var model = _mapper.Map<List<Inventory>, List<StockViewModel>>(items);
 
       return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("update")]
+    public async Task<IActionResult> UpdateInventory([FromBody] Inventory inventoryToUpdate)
+    {
+      var inventory = await _inventoryContext.Inventories.SingleOrDefaultAsync(i => i.Id == inventoryToUpdate.Id);
+      if (inventory == null) return NotFound();
+      var raiseProductQuantityChangedEvent = inventory.Quantity.Equals(inventoryToUpdate.Quantity);
+      var oldQuantity = inventory.Quantity;
+
+      inventory = inventoryToUpdate;
+      _inventoryContext.Inventories.Update(inventory);
+
+      if (raiseProductQuantityChangedEvent)
+      {
+        var quantityChangedEvent =
+          new ProductQuantityChangedIntegrationEvent(inventory.Id, inventoryToUpdate.Quantity, oldQuantity);
+        await _inventoryIntegrationEventService.SaveEventAndInventoryContextChangesAsync(quantityChangedEvent);
+        await _inventoryIntegrationEventService.PublishThroughEventBusAsync(quantityChangedEvent);
+      }
+      else
+      {
+        await _inventoryContext.SaveChangesAsync();
+      }
+
+      return Ok();
+    }
+
+    [HttpPost]
+    [Route("create")]
+    public async Task<IActionResult> CreateInventory([FromBody] Inventory inventory)
+    {
+      _inventoryContext.Inventories.Add(
+        new Inventory
+        {
+          Quantity = inventory.Quantity,
+          Blocked = inventory.Blocked,
+          BlockedReason = inventory.BlockedReason,
+          ExpiredOn = inventory.ExpiredOn,
+          LocM = inventory.LocM,
+          Reserved = inventory.Reserved,
+          Product = new Product
+          {
+            Name = inventory.Product.Name,
+            Description = inventory.Product.Description,
+            Height = inventory.Product.Height,
+            Length = inventory.Product.Length,
+            Price = inventory.Product.Price,
+            ProductGroup = inventory.Product.ProductGroup,
+            Supplier = inventory.Product.Supplier,
+            UnitMeasure = inventory.Product.UnitMeasure,
+            Volume = inventory.Product.Volume,
+            Weight = inventory.Product.Weight,
+            Width = inventory.Product.Width
+          }
+        }
+      );
+      await _inventoryContext.SaveChangesAsync();
+
+      return Ok();
     }
   }
 }
