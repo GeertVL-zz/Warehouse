@@ -4,6 +4,47 @@ using System.Text;
 
 namespace warehouselang.Vm
 {
+  class VmClassHelper
+  {
+    public static RVmClass CreateClass()
+    {
+      return new RVmClass
+      {
+        Name = "Class",
+        Methods = new VmEnvironment(),
+        ClassMethods = new VmEnvironment(),
+        Constants = new Dictionary<string, Pointer>()
+      };
+    }
+
+    public static RVmClass CreateObject()
+    {
+      return new RVmClass
+      {
+        Name = "Object",
+        Class = CreateClass(),
+        Methods = new VmEnvironment(),
+        ClassMethods = new VmEnvironment(),
+        Constants = new Dictionary<string, Pointer>()
+      };
+    }
+
+    public static VmEnvironment CreateGlobalMethods()
+    {
+      
+    }
+
+    public static VmEnvironment CreateClassMethods()
+    {
+      
+    }
+
+    private void BuiltInGlobalMethods()
+    {
+      
+    }
+  }
+
   interface IVmClass : IVmBaseObject
   {
     IVmObject LookupClassMethod(string name);
@@ -15,7 +56,22 @@ namespace warehouselang.Vm
 
   class RVmClass : VmBaseClass
   {
-    
+    public RVmClass()
+    {
+      
+    }
+
+    public RVmClass(string name, bool isModule)
+    {
+      Name = name;
+      Methods = new VmEnvironment();
+      ClassMethods = new VmEnvironment();
+      Class = VmClassHelper.CreateClass();
+      PseudoSuperClass = VmClassHelper.CreateObject();
+      SuperClass = VmClassHelper.CreateObject();
+      Constants = new Dictionary<string, Pointer>();
+      IsModule = isModule;
+    }
   }
 
   class VmBaseClass : IVmClass
@@ -25,7 +81,7 @@ namespace warehouselang.Vm
     public VmEnvironment ClassMethods { get; set; }
     public RVmClass PseudoSuperClass { get; set; }
     public RVmClass SuperClass { get; set; }
-    public RVmClass VmClass { get; set; }
+    public RVmClass Class { get; set; }
     public bool Singleton { get; set; }
     public bool IsModule { get; set; }
     public Dictionary<string, Pointer> Constants { get; set; }
@@ -34,42 +90,107 @@ namespace warehouselang.Vm
 
     public string ObjectType()
     {
-      throw new NotImplementedException();
+      return ObjectTypes.ClassObject;
     }
 
     public string Inspect()
     {
-      throw new NotImplementedException();
+      if (IsModule)
+      {
+        return $"<Module:" + Name + ">";
+      }
+
+      return $"<Class:" + Name + ">";
     }
 
     public IVmClass ReturnClass()
     {
-      throw new NotImplementedException();
+      return Class;
     }
 
     public IVmObject LookupClassMethod(string name)
     {
-      throw new NotImplementedException();
+      (var method, var ok) = ClassMethods.Get(name);
+      if (!ok)
+      {
+        if (SuperClass != null)
+        {
+          return SuperClass.LookupClassMethod(name);
+        }
+        if (Class != null)
+        {
+          return Class.LookupClassMethod(name);
+        }
+
+        return null;
+      }
+
+      return method;
     }
 
     public IVmObject LookupInstanceMethod(string name)
     {
-      throw new NotImplementedException();
+      (var method, var ok) = Methods.Get(name);
+      if (!ok)
+      {
+        if (SuperClass != null)
+        {
+          return SuperClass.LookupInstanceMethod(name);
+        }
+        if (Class != null)
+        {
+          return Class.LookupInstanceMethod(name);
+        }
+
+        return null;
+      }
+
+      return method;
     }
 
-    public Pointer LookupConstant(string name, bool flag)
+    public Pointer LookupConstant(string name, bool findInScope)
     {
-      throw new NotImplementedException();
+      var ok = Constants.TryGetValue(name, out var constant);
+      if (!ok)
+      {
+        if (findInScope && Scope != null)
+        {
+          return Scope.LookupConstant(name, true);
+        }
+        if (SuperClass != null)
+        {
+          return SuperClass.LookupConstant(name, false);
+        }
+
+        return null;
+      }
+
+      return constant;
     }
 
     public string ReturnName()
     {
-      throw new NotImplementedException();
+      return Name;
     }
 
     public IVmClass ReturnSuperClass()
     {
-      throw new NotImplementedException();
+      return PseudoSuperClass;
+    }
+
+    public void SetSingletonMethod(string name, VmMethod method)
+    {
+      if (PseudoSuperClass.Singleton)
+      {
+        PseudoSuperClass.ClassMethods.Set(name, method);
+      }
+
+      var cls = new RVmClass(Name + "singleton", false);
+      cls.Singleton = true;
+      cls.ClassMethods.Set(name, method);
+      cls.SuperClass = SuperClass;
+      cls.Class = VmClassHelper.CreateClass();
+      SuperClass = cls;
     }
   }
 }

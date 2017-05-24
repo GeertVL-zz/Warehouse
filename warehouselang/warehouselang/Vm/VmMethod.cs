@@ -13,12 +13,19 @@ namespace warehouselang.Vm
 
     public string ObjectType()
     {
-      
+      return ObjectTypes.MethodObject;
     }
 
     public string Inspect()
     {
-      throw new NotImplementedException();
+      var output = new StringBuilder();
+      output.Append("")
     }
+  }
+
+  class BuiltInMethod
+  {
+    public string Name { get; set; }
+    public Func<IVmObject> BuiltInMethodBody { get; set; }
   }
 }
